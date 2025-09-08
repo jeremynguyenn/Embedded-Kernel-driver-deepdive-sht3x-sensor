@@ -2,10 +2,12 @@
 #define SHT3X_IOCTL_H
 
 #include <linux/ioctl.h>
+#include <linux/types.h>
 
 /**
  * SHT3X IOCTL Commands
- * These commands control the SHT3X sensor's heater, measurement mode, status, and CRC checking.
+ * These commands control the SHT3X sensor's heater, measurement mode, status, CRC checking,
+ * and additional features like custom interval and config retrieval.
  */
 #define SHT3X_IOC_MAGIC 'x'
 
@@ -14,12 +16,23 @@
 #define SHT3X_BREAK             _IO(SHT3X_IOC_MAGIC, 0x02)       // Stop periodic measurement
 #define SHT3X_STATUS            _IOWR(SHT3X_IOC_MAGIC, 0x03, int) // Read/clear status register
 #define SHT3X_CRC_CHECK         _IOW(SHT3X_IOC_MAGIC, 0x04, int) // Enable/disable CRC check
+#define SHT3X_SET_INTERVAL      _IOW(SHT3X_IOC_MAGIC, 0x05, int) // Set custom periodic interval in ms
+#define SHT3X_GET_CONFIG        _IOR(SHT3X_IOC_MAGIC, 0x06, struct sht3x_config) // Get current config
+
+// Struct for config retrieval
+struct sht3x_config {
+    __u32 mode;         // Measurement mode
+    __u32 heater;       // Heater status (0/1)
+    __u32 crc_check;    // CRC check (0/1)
+    __u32 interval_ms;  // Custom interval in ms (0 for default)
+    __u32 status;       // Current status register value
+};
 
 // Heater control arguments
 #define SHT3X_HEATER_DISABLE    0UL // Disable heater
 #define SHT3X_HEATER_ENABLE     1UL // Enable heater
 
-// Measurement mode arguments
+// Measurement mode arguments (0-17 as before)
 #define SHT3X_SINGLE_SHOT_LOW   0UL // Single-shot, low repeatability
 #define SHT3X_SINGLE_SHOT_MED   1UL // Single-shot, medium repeatability
 #define SHT3X_SINGLE_SHOT_HIGH  2UL // Single-shot, high repeatability
